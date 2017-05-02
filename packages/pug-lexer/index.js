@@ -837,6 +837,59 @@ Lexer.prototype = {
   },
 
   /**
+   * render component.
+   */
+
+  render: function(){
+
+    var tok, captures, increment;
+    if (captures = /^render(\s*)([-\w]+)/.exec(this.input)) {
+      // insert token
+      increment = captures[0].length;
+      this.consume(increment);
+      tok = this.tok('render', captures[2]);
+
+      this.incrementColumn(increment);
+
+      tok.args = null;
+      // Check for args (not attributes)
+      if (captures = /^ *\(/.exec(this.input)) {
+        var range = this.bracketExpression(captures[0].length - 1);
+        if (!/^\s*[-\w]+ *=/.test(range.src)) { // not attributes
+          this.incrementColumn(1);
+          this.consume(range.end + 1);
+          tok.args = range.src;
+          this.assertExpression('[' + tok.args + ']');
+          for (var i = 0; i <= tok.args.length; i++) {
+            if (tok.args[i] === '\n') {
+              this.incrementLine(1);
+            } else {
+              this.incrementColumn(1);
+            }
+          }
+        }
+      }
+      this.tokens.push(tok);
+      return true;
+    }
+  },
+
+  /**
+   * Component.
+   */
+
+  component: function(){
+    var captures;
+    if (captures = /^component +([-\w]+)(?: *\((.*)\))? */.exec(this.input)) {
+      this.consume(captures[0].length);
+      var tok = this.tok('component', captures[1]);
+      tok.args = captures[2] || null;
+      this.tokens.push(tok);
+      return true;
+    }
+  },
+
+  /**
    * Conditional.
    */
 
@@ -1342,7 +1395,9 @@ Lexer.prototype = {
       || this.callLexerFunction('mixinBlock')
       || this.callLexerFunction('include')
       || this.callLexerFunction('mixin')
+      || this.callLexerFunction('component')
       || this.callLexerFunction('call')
+      || this.callLexerFunction('render')
       || this.callLexerFunction('conditional')
       || this.callLexerFunction('each')
       || this.callLexerFunction('while')
