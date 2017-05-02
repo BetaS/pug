@@ -1,0 +1,15 @@
+component ProfileBox(id, name, title)
+  div.profile
+    div.title
+      if title
+        | #{title}
+      else
+        | Default Title
+    div.box("data-id"=id)
+      span#name #{name}
+      div#content
+        block content
+          | Default content.
+    div.footer
+      block footer
+        | Default footer.

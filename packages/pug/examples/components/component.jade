@@ -1,0 +1,22 @@
+include base.jade
+
+render ProfileBox(0, "Thomas", "default content test")
+
+render ProfileBox(1, "James", "custom footer test")
+  block footer
+    p This is footer
+    
+render ProfileBox(2, "Eric", "custom content test")
+  block footer
+    p This is footer
+  block content
+    p This is content
+
+    
+render ProfileBox
+
+render ProfileBox#customID
+
+render ProfileBox()
+
+render ProfileBox()#customID
